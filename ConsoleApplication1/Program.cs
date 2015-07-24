@@ -1,4 +1,4 @@
-﻿namespace ConsoleApplication1
+﻿namespace RoslynTinkering
 {
     using System;
     using System.IO;
