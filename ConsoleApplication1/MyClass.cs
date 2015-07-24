@@ -11,6 +11,9 @@
         }
         public void MyMethod2()
         {
+            ;
+            ;
+            ;
         }
     }
 }

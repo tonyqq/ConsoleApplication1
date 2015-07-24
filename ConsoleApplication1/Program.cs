@@ -15,7 +15,7 @@
             Console.WriteLine("Just testing git hub");
 
             // TODO: changes this to relative path
-            var myClassText = File.ReadAllText(@"D:\src\GitHub\Repos\ConsoleApplication1\ConsoleApplication1\MyClass.cs");
+            var myClassText = File.ReadAllText(@"d:\src\GitHub\Repos\Roslyn-tinkering\ConsoleApplication1\MyClass.cs");
             var tree = CSharpSyntaxTree.ParseText(myClassText);
 
             var syntaxRoot = tree.GetRoot();
@@ -34,6 +34,11 @@
             // another way to get all methods
             var classMethodWalker = new ClassMethodWalker();
             classMethodWalker.Visit(syntaxRoot);
+
+            Console.WriteLine("New class without semicolons.");
+            var rewriter = new EmptyStatementRemoval();
+            var result = rewriter.Visit(tree.GetRoot());
+            Console.WriteLine(result.ToFullString());
 
             Console.ReadKey();
         }
@@ -75,6 +80,15 @@
                 var methodName = node.Identifier.ToString();
                 Console.WriteLine(className + '.' + methodName);
                 base.VisitMethodDeclaration(node);
+            }
+        }
+
+        public class EmptyStatementRemoval : CSharpSyntaxRewriter
+        {
+            public override SyntaxNode VisitEmptyStatement(EmptyStatementSyntax node)
+            {
+                //Simply remove all Empty Statements
+                return null;
             }
         }
     }
