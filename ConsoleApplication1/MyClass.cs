@@ -1,7 +1,5 @@
 ﻿namespace ConsoleApplication1
 {
-    using System;
-
     public class MyClass
     {
         public void MyMethod()

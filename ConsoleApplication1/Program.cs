@@ -1,13 +1,12 @@
-﻿using System;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace ConsoleApplication1
+﻿namespace ConsoleApplication1
 {
-    using System.Diagnostics;
+    using System;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
+
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     class Program
     {
@@ -22,26 +21,61 @@ namespace ConsoleApplication1
             var syntaxRoot = tree.GetRoot();
             var myMethods = syntaxRoot.DescendantNodes()
                 .OfType<MethodDeclarationSyntax>();
-                //.First(n => n.ParameterList.Parameters.Any());
 
-            //Find the type that contains this method
-            //var containingType = myMethod.Ancestors().OfType<TypeDeclarationSyntax>();
-
+            // gets all methods from class
             foreach (var myMethod in myMethods)
             {
                 Console.WriteLine(myMethod.Identifier.ToString());
             }
             
-            //Console.WriteLine(myMethod.ToString());
+            var customWalker = new CustomWalker();
+            customWalker.Visit(syntaxRoot);
 
-            //var syntaxRoot = tree.GetRoot();
-            //var myClass = syntaxRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-            //var myMethod = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
-
-            //Console.WriteLine(myClass.Identifier.ToString());
-            //Console.WriteLine(myMethod.Identifier.ToString());
+            // another way to get all methods
+            var classMethodWalker = new ClassMethodWalker();
+            classMethodWalker.Visit(syntaxRoot);
 
             Console.ReadKey();
+        }
+
+        public class CustomWalker : CSharpSyntaxWalker
+        {
+            public CustomWalker() : base(SyntaxWalkerDepth.Token)
+            {
+            }
+
+            static int tabs = 0;
+            public override void Visit(SyntaxNode node)
+            {
+                tabs++;
+                var indents = new string('\t', tabs);
+                Console.WriteLine(indents + node.Kind());
+                base.Visit(node);
+                tabs--;
+            }
+            public override void VisitToken(SyntaxToken token)
+            {
+                var indents = new string('\t', tabs);
+                Console.WriteLine(indents + token);
+                base.VisitToken(token);
+            }
+        }
+
+        public class ClassMethodWalker : CSharpSyntaxWalker
+        {
+            string className = string.Empty;
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+                className = node.Identifier.ToString();
+                base.VisitClassDeclaration(node);
+            }
+
+            public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+            {
+                var methodName = node.Identifier.ToString();
+                Console.WriteLine(className + '.' + methodName);
+                base.VisitMethodDeclaration(node);
+            }
         }
     }
 }
