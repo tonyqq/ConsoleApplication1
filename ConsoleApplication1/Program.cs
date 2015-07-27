@@ -87,8 +87,12 @@
         {
             public override SyntaxNode VisitEmptyStatement(EmptyStatementSyntax node)
             {
-                //Simply remove all Empty Statements
-                return null;
+                // Construct an EmptyStatementSyntax with a missing semicolon
+                // This approach has the side effect of leaving a blank line wherever there was a redundant semicolon
+                return node.WithSemicolonToken(
+                    SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken)
+                        .WithLeadingTrivia(node.SemicolonToken.LeadingTrivia)
+                        .WithTrailingTrivia(node.SemicolonToken.TrailingTrivia));
             }
         }
     }
